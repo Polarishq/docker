@@ -26,7 +26,8 @@ import (
 )
 
 const (
-	driverName                    = "splunk"
+	//driverName                    = "splunk"
+	driverName		      = "ShippyMcLogFace"
 	splunkURLKey                  = "splunk-url"
 	splunkTokenKey                = "splunk-token"
 	splunkSourceKey               = "splunk-source"
