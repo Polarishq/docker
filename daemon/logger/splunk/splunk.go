@@ -121,6 +121,7 @@ type splunkMessage struct {
 	Time       string      `json:"time"`
 	Entity       string      `json:"entity"`
 	Source     string      `json:"source,omitempty"`
+	//Source     string      `json:"source"`
 	//SourceType string      `json:"sourcetype,omitempty"`
 	//Index      string      `json:"index,omitempty"`
 }
@@ -129,7 +130,7 @@ type splunkEvents []splunkMessage
 
 type splunkMessageEvent struct {
 	Line   interface{}       `json:"line"`
-	Source string            `json:"source"`
+	Source string            `json:"source,omitempty"`
 	Tag    string            `json:"tag,omitempty"`
 	Attrs  map[string]string `json:"attrs,omitempty"`
 }
@@ -151,10 +152,12 @@ func init() {
 
 // New creates splunk logger driver using configuration passed in context
 func New(info logger.Info) (logger.Logger, error) {
-	hostname, err := info.Hostname()
-	if err != nil {
-		return nil, fmt.Errorf("%s: cannot access hostname to set source field", driverName)
-	}
+	//hostname, err := info.Hostname()
+	hostname := info.ImageName()
+
+	//if err != nil {
+	//	return nil, fmt.Errorf("%s: cannot access hostname to set source field", driverName)
+	//}
 	//fmt.Println("Creating splunk new object")
 	// Parse and validate Splunk URL
 	splunkURL, err := parseURL(info)
@@ -234,13 +237,16 @@ func New(info logger.Info) (logger.Logger, error) {
 		Transport: transport,
 	}
 
-	source := info.Config[splunkSourceKey]
+	//source := info.Config[splunkSourceKey]
+	source := info.FullID()
+	fmt.Printf("Source ID: %s", source)
 	//sourceType := info.Config[splunkSourceTypeKey]
 	//index := info.Config[splunkIndexKey]
 
 	var nullMessage = &splunkMessage{
 		Entity:     hostname,
-		Source:     source,
+		Source:	    source,
+		//Source:     "IAMSOURCE",
 		//SourceType: sourceType,
 		//Index:      index,
 	}
@@ -365,7 +371,7 @@ func (l *splunkLoggerInline) Log(msg *logger.Message) error {
 	if err != nil {
 		logrus.Error(err)
 	}
-	message.Source = msg.Source
+	//message.Source = msg.Source
 	//message.Raw = string(msg.Line)
 	message.Raw = string(jsonEvent)
 	logger.PutMessage(msg)
